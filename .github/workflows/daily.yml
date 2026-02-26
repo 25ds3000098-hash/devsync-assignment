@@ -7,6 +7,8 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v4
     - name: Setup by 25ds3000098@ds.study.iitm.ac.in
@@ -14,8 +16,9 @@ jobs:
         echo "Last update: $(date)" > status.txt
         git config user.email "25ds3000098@ds.study.iitm.ac.in"
         git config user.name "Daily Bot"
-    - run: |
+    - name: Commit and push changes
+      run: |
         git add status.txt
-        git commit -m "Daily update $(date)" || exit 0
-        git push
+        git commit -m "Daily update $(date)" || true
+        git push origin main
 
