@@ -2,13 +2,13 @@ name: Daily Commit by 25ds3000098@ds.study.iitm.ac.in
 on:
   schedule:
     - cron: '0 22 * * *'
-  workflow_dispatch:  # ← THIS = Run button!
-  push:              # ← THIS = Makes it appear instantly
+  workflow_dispatch:
+  push:
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7 - PINNED!
     - name: Setup by 25ds3000098@ds.study.iitm.ac.in
       run: |
         echo "Updated: $(date)" > status.txt
@@ -18,5 +18,6 @@ jobs:
         git add status.txt
         git commit -m "Daily: $(date)" || exit 0
         git push
+
 
 
