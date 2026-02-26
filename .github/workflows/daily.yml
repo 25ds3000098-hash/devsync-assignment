@@ -2,7 +2,8 @@ name: Daily Commit by 25ds3000098@ds.study.iitm.ac.in
 
 on:
   schedule:
-    - cron: '0 22 * * *'  # Every day at 10:30 PM IST (22:00 UTC)
+    - cron: '0 22 * * *'  # Daily 10:30PM IST
+  workflow_dispatch:     # ← THIS LINE ADDS "Run workflow" button!
 
 jobs:
   update:
@@ -18,3 +19,4 @@ jobs:
         git add status.txt
         git commit -m "Daily update $(date)" || exit 0
         git push
+
