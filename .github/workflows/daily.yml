@@ -1,24 +1,62 @@
-name: Daily Commit by 25ds3000098@ds.study.iitm.ac.in
+name: Daily Status Update
 
 on:
   schedule:
     - cron: '0 22 * * *'  # Every day at 10:30 PM IST (22:00 UTC)
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  BOT_EMAIL: "25ds3000098@ds.study.iitm.ac.in"
+  BOT_NAME: "Daily Bot"
+  STATUS_FILE: "status.txt"
 
 jobs:
-  update:
+  daily-update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup by 25ds3000098@ds.study.iitm.ac.in
-      run: |
-        echo "Last update: $(date)" > status.txt
-        git config user.email "25ds3000098@ds.study.iitm.ac.in"
-        git config user.name "Daily Bot"
-    - name: Commit and push changes
-      run: |
-        git add status.txt
-        git commit -m "Daily update $(date)" || true
-        git push origin main
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Update status file
+        run: |
+          TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          COMMIT_HASH=$(git rev-parse HEAD)
+          
+          cat > ${{ env.STATUS_FILE }} << EOF
+          Last update: ${TIMESTAMP}
+          Commit hash: ${COMMIT_HASH}
+          Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EOF
+
+      - name: Configure Git
+        run: |
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git config user.name "${{ env.BOT_NAME }}"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain ${{ env.STATUS_FILE }})" ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git add ${{ env.STATUS_FILE }}
+          TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          git commit -m "chore: daily status update [${TIMESTAMP}]"
+          git push origin main
+        continue-on-error: true
+
+      - name: Log workflow status
+        if: always()
+        run: |
+          echo "Workflow completed at $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "Job status: ${{ job.status }}"
