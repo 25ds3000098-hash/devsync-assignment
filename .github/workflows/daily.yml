@@ -1,4 +1,3 @@
-```yaml
 name: Daily Update by 25ds3000098@ds.study.iitm.ac.in
 on:
   schedule:
